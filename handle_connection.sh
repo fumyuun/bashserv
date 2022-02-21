@@ -20,8 +20,6 @@ while read -r line; do
       filetype=$(echo "$path_sane" | sed 's/^.*\.//')
       content="text/html"
 
-        echo "foo" >> connection.log
-
       case "$filetype" in
       css)
         content="text/css"
@@ -38,10 +36,8 @@ EOF
 
       break
     fi
-    echo "bar" >> connection.log
 
     if [ -n "$GET_HANDLER" ]; then
-      echo "baz" >> connection.log
       $GET_HANDLER "$path_sane" "$path"
       break
     fi
