@@ -1,6 +1,7 @@
 #!/bin/bash
 
 OTHERS=()
+PORT=8000
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -19,6 +20,11 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
     ;;
+  -p|--port)
+    PORT="$2"
+    shift
+    shift
+    ;;
   *)
     OTHERS+=("$2")
     shift
@@ -28,12 +34,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$HELP" ]; then
-  echo "Usage: $0 [-h|--help] [-s|--static <dir>] [-g|--get <script>]"
+  echo "Usage: $0 [-h|--help] [-s|--static <dir>] [-g|--get <get_handler>] [-p|--port <port>]"
   echo "  -h | --help: Show this help"
   echo "  -s | --static <dir>: Serve static content in <dir>"
-  echo "  [get_handler]: Script to use to handle GET requests"
+  echo "  -g | --get <get_handler>: Script to use to handle GET requests"
+  echo "  -p | --port <port>: Port number to use (default 8000)"
   echo "Note that at least a static content directory or a get handler must be registered"
-  exit 1
+  exit 0
 fi
 
 if [ -z "$GET_HANDLER" -a -z "$STATIC_DIR" ]; then
@@ -63,6 +70,6 @@ fi
 
 trap 'exit' INT
 while true; do
-  nc -l -p 8000 -e "$BASHSERV_DIR/handle_connection.sh"
+  ncat -l -k -p "$PORT" -e "$BASHSERV_DIR/handle_connection.sh"
 done
 

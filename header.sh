@@ -32,7 +32,7 @@ if [ $HELP ]; then
   echo "  <type>: Content Type to serve"
   echo "  <length: Content Length to serve"
   echo "  [code]: Status code to return, defaults to 200"
-  exit 1
+  exit 0
 fi
 
 echo -ne "HTTP/1.1 $CODE OK\r\n"

@@ -1,9 +1,7 @@
 #!/bin/bash
 
-rm -f connection_raw.log connection.log
-
 while read -r line; do
-  echo "$line" >> connection_raw.log
+  echo "[$(date +%T)] $line" >> connection_raw.log
   line=$(echo "$line" | tr -d '\r\n')
 
   if [[ "$line" =~ ^GET ]]; then
@@ -14,7 +12,7 @@ while read -r line; do
     # remove slashes and dots in the beginning
     path_sane=$(echo $path | sed 's/^[./]*//')
 
-    echo "line: $line; path: $path; path_sane: $path_sane" >> connection.log
+    echo "[$(date +%T)] line: $line; path: $path; path_sane: $path_sane" >> connection.log
 
     if [ -n "$STATIC_DIR" -a -n "$path_sane" -a -r "$STATIC_DIR/$path_sane" ]; then
       filetype=$(echo "$path_sane" | sed 's/^.*\.//')
