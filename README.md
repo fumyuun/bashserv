@@ -11,8 +11,7 @@ The GET handler script will be called with two environment variables set: `$REQU
 
 To parse these values, you could do something like this in your get-handler:
 
-`
-while [[ $# -gt 0 ]]; do
+`while [[ $# -gt 0 ]]; do
   length="$1"
   key="$2"
   shift
@@ -30,8 +29,7 @@ while [[ $# -gt 0 ]]; do
       mobile=1
     fi
     ;;
-  esac
-`
+  esac`
 
 It can use the header script to generate a header as well, which can be called as such:
 
