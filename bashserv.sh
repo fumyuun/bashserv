@@ -20,6 +20,11 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
     ;;
+  --post)
+    export POST_HANDLER="$2"
+    shift
+    shift
+    ;;
   -p|--port)
     PORT="$2"
     shift
