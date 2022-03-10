@@ -69,7 +69,9 @@ if [ -n "$STATIC_DIR" ]; then
 fi
 
 trap 'exit' INT
-while true; do
+ret=0
+while [ $ret -eq 0 ]; do
   ncat -l -k -p "$PORT" -e "$BASHSERV_DIR/handle_connection.sh"
+  ret=$?
 done
 
