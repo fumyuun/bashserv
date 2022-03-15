@@ -34,16 +34,16 @@ if [ $HELP ]; then
   exit 0
 fi
 
-echo -ne "HTTP/1.1 $CODE\r\n"
+printf "HTTP/1.1 $CODE\r\n"
 
 if [ -n "$TYPE" ]; then
-  echo -ne "Content-Type: $TYPE\r\n"
+  printf "Content-Type: $TYPE\r\n"
 fi
 
 if [ -n "$LENGTH" ]; then
   content_length="$2"
-  echo -ne "Content-Length: $LENGTH\r\n"
+  printf "Content-Length: $LENGTH\r\n"
 fi
 
-echo -ne "\r\n"
+printf "\r\n"
 

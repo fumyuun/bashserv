@@ -7,10 +7,21 @@ path_sane=""
 request_keys=()
 request_values=()
 
+# serve_error(code, body, type="text/plain)
+function serve_error()
+{
+  local t="$3"
+  [ -z "$t" ] && local t="text/plain"
+  local body="$2"
+  local length=$(echo -ne "$body" | wc -c)
+  local header=$($BASHSERV_DIR/header.sh -t "text/plain" -l "$length" "$1")
+  printf "%b\n%b" "$header" "$body"
+}
+
 while read -r line; do
   line=$(echo "$line" | tr -d '\r\n')
 
-  echo "[$(date +%T)] '$line'" >> connection_raw.log
+  echo "[$(date +%T)][$$] '$line'" >> connection_raw.log
 
   # End of request, time to handle it
   if [ -z "$line" ]; then
@@ -43,22 +54,19 @@ while read -r line; do
         ;;
       esac
 
-    echo "[$(date +%T)] GET static, path: $path; path_sane: $path_sane" >> connection.log
-
-cat <<EOF
-$($BASHSERV_DIR/header.sh -t $content -l $(wc -c $STATIC_DIR/$path_sane | cut -d ' ' -f1))
-$(cat $STATIC_DIR/$path_sane)
-EOF
+      echo "[$(date +%T)][$$] GET static, path: $path; path_sane: $path_sane" >> connection.log
+      header=$($BASHSERV_DIR/header.sh -t $content -l $(wc -c $STATIC_DIR/$path_sane | cut -d ' ' -f1))
+      body=$(cat $STATIC_DIR/$path_sane)
+      printf "%b\n%b\n" "$header" "$body"
       exit 0
     fi
 
     # GET, get handler registered
     if [ "$request" == "GET" -a -n "$GET_HANDLER" ]; then
-      echo "[$(date +%T)] GET dynamic, path: $path; path_sane: $path_sane" >> connection.log
+      echo "[$(date +%T)][$$] GET dynamic, path: $path; path_sane: $path_sane" >> connection.log
 
       $GET_HANDLER
-      ret=$?
-      [ $ret -eq 0 ] && exit 0
+      [ $? -eq 0 ] && exit 0
     fi
 
     # POST, post handler registered
@@ -71,20 +79,22 @@ EOF
         fi
       done
       read -r -n "$length" data
-      echo "[$(date +%T)] POST path: $path; path_sane: $path_sane, content-length: $length" >> connection.log
-      echo "[$(date +%T)] Data: '$data'" >> connection.log
+      if [ ! $? -eq 0 ]; then
+        serve_error "400" "Bad request\n" "text/plain"
+        exit 0
+      fi
+
+      echo "[$(date +%T)][$$] POST path: $path; path_sane: $path_sane, content-length: $length" >> connection.log
+      echo "[$(date +%T)][$$] Data: '$data'" >> connection.log
 
       export POST_DATA="$data"
       $POST_HANDLER
-      ret=$?
-      [ $ret -eq 0 ] && exit 0
+      [ $? -eq 0 ] && exit 0
     fi
 
     # Can't handle the request, better 404 for now
-cat <<EOF
-$($BASHSERV_DIR/header.sh -t "text/plain" -l 16 404)
-File not found!\n
-EOF
+    echo "[$(date +%T)][$$] Returning 404 for $request $REQUEST_PATH" >> connection.log
+    serve_error "404" "File not found\n" "text/plain"
     exit 0
   fi
 
