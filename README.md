@@ -19,7 +19,9 @@ The GET handler script will be called with three environment variables set: `$RE
 To parse these values, you could do something like this in your get-handler:
 
 ```
+set -f
 set $REQUEST_FIELDS
+set +f
 while [[ $# -gt 0 ]]; do
   length="$1"
   key="$2"
