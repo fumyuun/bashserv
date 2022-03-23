@@ -14,8 +14,8 @@ function serve_error()
   [ -z "$t" ] && local t="text/plain"
   local body="$2"
   local length=$(echo -ne "$body" | wc -c)
-  local header=$($BASHSERV_DIR/header.sh -t "text/plain" -l "$length" "$1")
-  printf "%b\n%b" "$header" "$body"
+  $BASHSERV_DIR/header.sh -t "text/plain" -l "$length" "$1"
+  printf "%b" "$body"
 }
 
 while read -r line; do
@@ -39,28 +39,12 @@ while read -r line; do
 
     # GET, static content directory defined and matches a file
     if [ "$request" == "GET" -a -n "$STATIC_DIR" -a -n "$path_sane" -a -r "$STATIC_DIR/$path_sane" ]; then
-      filetype=$(echo "$path_sane" | sed 's/^.*\.//')
-      content="text/plain"
-
-      case "$filetype" in
-      css)
-        content="text/css"
-        ;;
-      js)
-        content="application/javascript"
-        ;;
-      html)
-        content="text/html"
-        ;;
-      ico)
-        content="image/vnd.microsoft.icon"
-      esac
+      content=$($BASHSERV_DIR/mime_type.sh "$path_sane")
 
       echo "[$(date +%T)][$$] GET static, path: $path; path_sane: $path_sane" >> connection.log
-      size=$(wc -c $STATIC_DIR/$path_sane | cut -d ' ' -f1)
-      header=$($BASHSERV_DIR/header.sh -t $content -l $size)
-      printf "%s\n" "$header"
-      cat $STATIC_DIR/$path_sane
+      size=$(wc -c "$STATIC_DIR/$path_sane" | cut -d ' ' -f1)
+      $BASHSERV_DIR/header.sh -t "$content" -l "$size"
+      cat "$STATIC_DIR/$path_sane"
       exit 0
     fi
 
