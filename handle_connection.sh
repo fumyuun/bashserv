@@ -52,12 +52,15 @@ while read -r line; do
       html)
         content="text/html"
         ;;
+      ico)
+        content="image/vnd.microsoft.icon"
       esac
 
       echo "[$(date +%T)][$$] GET static, path: $path; path_sane: $path_sane" >> connection.log
-      header=$($BASHSERV_DIR/header.sh -t $content -l $(wc -c $STATIC_DIR/$path_sane | cut -d ' ' -f1))
-      body=$(cat $STATIC_DIR/$path_sane)
-      printf "%s\n%s\n" "$header" "$body"
+      size=$(wc -c $STATIC_DIR/$path_sane | cut -d ' ' -f1)
+      header=$($BASHSERV_DIR/header.sh -t $content -l $size)
+      printf "%s\n" "$header"
+      cat $STATIC_DIR/$path_sane
       exit 0
     fi
 
