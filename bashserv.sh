@@ -53,7 +53,7 @@ if [ -z "$GET_HANDLER" -a -z "$STATIC_DIR" ]; then
   exit 1
 fi
 
-if [ ! -x "$GET_HANDLER" ]; then
+if [ -n "$GET_HANDLER" -a ! -x "$GET_HANDLER" ]; then
   echo "$GET_HANDLER is not an executable file"
   exit 1
 fi
