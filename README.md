@@ -13,6 +13,10 @@ These scripts should simply write their respective responses to STDOUT. Furtherm
 
 For example `$BASHSERV_DIR/header.sh -t "text/html" -l 1337 "200 OK"` would generate a response header stating the request was OK and we'll send an HTML page of 1337 characters.
 
+A simple example can be found in the examples page, and is ran as follows:
+
+    ./bashserv.sh -g examples/handle_get.sh -s examples/static/
+
 # Handling GET requests
 The GET handler script will be called with several environment variables set: `$REQUEST_PATH_SANE`, `$REQUEST_PATH` and `BASHSERV_DIR`: the first gives a slightly sanitised path, and the second gives the full original path as requested. The last will contain bashserv's directory, which is useful when using the helper scripts provided.
 
